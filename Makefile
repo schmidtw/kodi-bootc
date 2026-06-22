@@ -23,7 +23,7 @@ BIB_RUN = sudo podman run --rm -it --privileged --security-opt label=disable \
 	-v $(CURDIR)/$(CONFIG):/config.toml:ro \
 	-v $(CURDIR)/$(OUTPUT):/output \
 	-v /var/lib/containers/storage:/var/lib/containers/storage \
-	$(BIB) --config /config.toml
+	$(BIB) --config /config.toml --rootfs xfs
 
 .DEFAULT_GOAL := help
 
