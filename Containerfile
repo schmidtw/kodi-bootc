@@ -41,6 +41,15 @@ RUN dnf -y install \
 # Everything under files/ mirrors the target rootfs layout.
 COPY files/ /
 
+# Give the kodi user access to the GPU (video/render), input devices (input),
+# the VT (tty), and audio. These groups live only in /usr/lib/group on Fedora
+# bootc, where usermod -aG and sysusers `m` silently fail to add membership, so
+# we append layered /etc/group lines that nss-altfiles merges. The kodi user
+# itself is created at boot by sysusers; membership lines reference it by name.
+RUN for g in video render input audio tty; do \
+        echo "${g}:x:$(getent group "$g" | cut -d: -f3):kodi" >> /etc/group; \
+    done
+
 # --- Remote access --------------------------------------------------------
 # Tailscale only. `tailscaled` serves SSH itself (tailnet ACL auth), so no
 # openssh and nothing listening on port 22 — the only way in is the tailnet.
