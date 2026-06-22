@@ -20,7 +20,7 @@ no clean undo. bootc flips that around:
   half-applied update.
 - **Rollback is free.** The previous image stays on disk; `bootc rollback` +
   reboot returns you to exactly what worked yesterday.
-- **It's always current.** CI rebuilds nightly on the latest `fedora-bootc`
+- **It's always current.** CI rebuilds weekly on the latest `fedora-bootc`
   base, so kernel/Mesa/codec/Kodi fixes flow out automatically.
 - **Same mental model as your Rocky 10 + bootc work setup** — only the base
   layer differs (Fedora, for a fresh media stack).
@@ -48,7 +48,7 @@ files/                                # overlaid onto the OS rootfs verbatim
   etc/polkit-1/rules.d/10-kodi-power.rules  # reboot/shutdown from Kodi menu
   etc/yum.repos.d/tailscale.repo      #   Tailscale package repo
 install/config.toml.example           # template; copy to install/config.toml (gitignored)
-.github/workflows/build.yml           # CI: build + push to ghcr.io nightly
+.github/workflows/build.yml           # CI: build + push to ghcr.io weekly
 ```
 
 ## Open source & secrets
@@ -71,7 +71,7 @@ So nothing sensitive is ever in the image layers or the repo.
 ## 1. Build & publish (CI)
 
 Push this repo to GitHub. The workflow builds the image and pushes it to
-`ghcr.io/<you>/kodi-bootc:latest` on every push to `main`, nightly, and on
+`ghcr.io/<you>/kodi-bootc:latest` on every push to `main`, weekly, and on
 manual dispatch. Make the package **public** (or configure a pull secret on the
 box) so the appliance can pull without auth.
 
@@ -156,7 +156,7 @@ so you authenticate once and it survives every image update and rollback.
 
 ```bash
 bootc status            # what image am I on, is an update staged?
-bootc upgrade           # pull latest now (or let the timer do it nightly)
+bootc upgrade           # pull latest now (or let the box's timer do it)
 systemctl reboot        # apply a staged update
 bootc rollback          # an update broke something? go back, then reboot
 journalctl -u kodi -b   # Kodi logs this boot
@@ -164,7 +164,7 @@ journalctl -u kodi -b   # Kodi logs this boot
 
 Auto-updates are enabled (`bootc-fetch-apply-updates.timer`): the box pulls and
 stages new images on a timer and applies them on the next reboot. Pair with a
-scheduled nightly reboot if you want fully hands-off updates.
+scheduled weekly reboot if you want fully hands-off updates.
 
 ## Customization cheatsheet
 
