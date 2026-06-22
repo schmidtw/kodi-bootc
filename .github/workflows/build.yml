@@ -1,7 +1,7 @@
 name: build
 
 # Builds the Kodi bootc image and pushes it to GitHub Container Registry.
-# The daily schedule is what keeps the box current: every night it rebuilds on
+# The weekly schedule is what keeps the box current: every week it rebuilds on
 # top of the latest fedora-bootc base, so security/codec/kernel fixes flow out
 # without you touching the machine.
 
@@ -9,7 +9,7 @@ on:
   push:
     branches: [main]
   schedule:
-    - cron: "0 7 * * *"   # 07:00 UTC daily
+    - cron: "0 7 * * 0"   # 07:00 UTC every Sunday
   workflow_dispatch:
 
 permissions:
@@ -22,7 +22,7 @@ jobs:
     env:
       IMAGE: ghcr.io/${{ github.repository_owner }}/kodi-bootc
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
       # podman + buildah are preinstalled on ubuntu runners; using them directly
       # avoids the deprecated redhat-actions wrappers. FEDORA_VERSION comes from
