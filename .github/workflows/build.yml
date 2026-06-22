@@ -12,9 +12,6 @@ on:
     - cron: "0 7 * * *"   # 07:00 UTC daily
   workflow_dispatch:
 
-env:
-  IMAGE_NAME: kodi-bootc
-
 permissions:
   contents: read
   packages: write
@@ -22,23 +19,21 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      IMAGE: ghcr.io/${{ github.repository_owner }}/kodi-bootc
     steps:
       - uses: actions/checkout@v4
 
+      # podman + buildah are preinstalled on ubuntu runners; using them directly
+      # avoids the deprecated redhat-actions wrappers. FEDORA_VERSION comes from
+      # the Containerfile's ARG default, so there's a single source of truth.
       - name: Build image
-        id: build
-        uses: redhat-actions/buildah-build@v2
-        with:
-          image: ${{ env.IMAGE_NAME }}
-          tags: latest ${{ github.sha }}
-          containerfiles: ./Containerfile
-          oci: true
+        run: podman build -t "$IMAGE:latest" -t "$IMAGE:${GITHUB_SHA}" .
 
-      - name: Push to ghcr.io
-        uses: redhat-actions/push-to-registry@v1
-        with:
-          image: ${{ env.IMAGE_NAME }}
-          tags: latest ${{ github.sha }}
-          registry: ghcr.io/${{ github.repository_owner }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Log in to ghcr.io
+        run: podman login ghcr.io -u "${{ github.actor }}" --password-stdin <<< "${{ secrets.GITHUB_TOKEN }}"
+
+      - name: Push
+        run: |
+          podman push "$IMAGE:latest"
+          podman push "$IMAGE:${GITHUB_SHA}"
