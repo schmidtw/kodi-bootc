@@ -1,0 +1,14 @@
+/output/
+*.iso
+*.raw
+*.qcow2
+
+# Local install media config — contains secrets (SSH key / password hash).
+/install/config.toml
+
+# Claude Code working dir (per-machine, not shared).
+/.claude/
+
+# Editor swap files and local scratch dumps.
+*.swp
+/list

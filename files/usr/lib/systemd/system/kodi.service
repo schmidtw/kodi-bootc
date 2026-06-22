@@ -1,0 +1,26 @@
+[Unit]
+Description=Kodi standalone (GBM / direct DRM, no desktop)
+After=systemd-user-sessions.service network-online.target sound.target remote-fs.target getty@tty1.service
+Wants=network-online.target
+# Own tty1 outright so a login prompt never fights Kodi for the screen.
+Conflicts=getty@tty1.service
+
+[Service]
+User=kodi
+Group=kodi
+# PAMName=login opens a real logind session, which is what grants this service
+# access to the DRM (/dev/dri) and input devices on seat0.
+PAMName=login
+TTYPath=/dev/tty1
+ExecStart=/usr/bin/kodi-standalone --windowing=gbm
+Restart=on-failure
+RestartSec=2
+StandardInput=tty
+StandardOutput=journal
+StandardError=journal
+TTYReset=yes
+TTYVHangup=yes
+TTYVTDisallocate=yes
+
+[Install]
+WantedBy=multi-user.target

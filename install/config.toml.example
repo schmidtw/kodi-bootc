@@ -1,0 +1,30 @@
+# Install-media config for bootc-image-builder.
+#
+# YOUR IDENTITY + SECRETS LIVE HERE, NOT IN GIT. This template is the only
+# personal-data-free file that ships in the repo; the published image contains
+# no user at all. Copy this to install/config.toml (gitignored) and put your
+# real username / password there:
+#   cp install/config.toml.example install/config.toml
+#
+# Used to produce a bootable USB/ISO (or raw disk) for the first clean install.
+# After the box is running bootc, you never need this again — updates come from
+# the registry via `bootc upgrade`.
+
+# --- Login account -------------------------------------------------------
+# OPTIONAL and intentionally left out by default. With the interactive ISO
+# installer you create your admin login (name + password) ON THE MACHINE at
+# install time, so no account needs to live in this repo. After first boot:
+#   sudo tailscale up --ssh            # join the tailnet, enable Tailscale SSH
+# then allow SSH to root (or your user) in your Tailscale ACL and connect with
+#   ssh root@kodi                      # works ONLY over the tailnet; sshd is masked
+#
+# Uncomment below ONLY for an UNATTENDED install (no console prompts). Anything
+# you put here is a secret -> it stays in install/config.toml, which is gitignored.
+# [[customizations.user]]
+# name = "youruser"
+# password = "$6$...."                 # openssl passwd -6 'your-password'
+# groups = ["wheel"]
+
+[customizations.kernel]
+# Quiet, fast boot suited to an appliance.
+append = "quiet splash"
