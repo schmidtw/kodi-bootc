@@ -84,6 +84,7 @@ RUN systemctl set-default multi-user.target && \
     systemctl enable kodi.service && \
     systemctl enable bootc-fetch-apply-updates.timer && \
     systemctl enable tailscaled.service && \
+    systemctl enable tailscale-firstboot.service && \
     # The base image enables openssh; mask it so the tailnet is the only way in.
     systemctl mask sshd.service
 

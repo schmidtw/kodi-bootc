@@ -1,0 +1,26 @@
+[Unit]
+Description=First-boot Tailscale enrollment (shows a login URL on the TV)
+Documentation=https://tailscale.com/kb/1080/cli#up
+After=tailscaled.service network-online.target
+Wants=tailscaled.service network-online.target
+# Hold the screen before Kodi so the login URL is visible and approvable.
+Before=kodi.service
+# Run only until enrolled. On success we drop a flag in persistent /var, so
+# this never delays later boots.
+ConditionPathExists=!/var/lib/tailscale/.enrolled
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+# Print to the same VT Kodi will use, so the URL shows up on the TV.
+StandardOutput=tty
+StandardError=tty
+TTYPath=/dev/tty1
+TTYReset=yes
+ExecStartPre=/bin/sh -c 'printf "\n\n  Tailscale: open the URL below to add this box to your tailnet.\n  Approve it on your phone/laptop; Kodi starts once enrolled.\n\n"'
+ExecStart=/usr/bin/tailscale up --ssh --timeout=300s
+# Only marks enrolled if `up` succeeded; a timeout/decline retries next boot.
+ExecStartPost=/bin/touch /var/lib/tailscale/.enrolled
+
+[Install]
+WantedBy=multi-user.target
