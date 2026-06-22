@@ -54,13 +54,17 @@ qcow2: build config ## Build a qcow2 from the LOCAL image for VM testing
 	mkdir -p $(OUTPUT)
 	$(BIB_RUN) --type qcow2 $(LOCAL_IMAGE)
 
+# bootc-image-builder runs as root and reads root's image storage, so the
+# image must be pulled with `sudo podman` (not your rootless storage) first.
 .PHONY: raw
 raw: config ## Build a raw disk from the ghcr.io image (publish it first)
+	sudo podman pull $(REMOTE_IMAGE)
 	mkdir -p $(OUTPUT)
 	$(BIB_RUN) --type raw $(REMOTE_IMAGE)
 
 .PHONY: iso
 iso: config ## Build an installer ISO from the ghcr.io image (publish it first)
+	sudo podman pull $(REMOTE_IMAGE)
 	mkdir -p $(OUTPUT)
 	$(BIB_RUN) --type anaconda-iso $(REMOTE_IMAGE)
 
